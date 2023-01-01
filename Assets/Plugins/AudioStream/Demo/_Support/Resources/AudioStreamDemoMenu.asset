@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37119dd84e6d101488110cc54c9accd4, type: 3}
+  m_Name: AudioStreamDemoMenu
+  m_EditorClassIdentifier: 
+  mainSceneName: AudioStreamMainScene
+  menuSections:
+  - name: Audio Streaming
+    description: Usage of main AudioStream and AudioStreamMinimal components
+    sceneNames:
+    - AudioStreamDemo
+    - AudioStreamRuntimeImportDemo
+    - AudioStreamMemoryDemo
+    - AudioStreamStressTest
+    - AudioStreamMinimalStressTest
+    - AudioStreamRuntimeImportStressTest
+    - AudioStreamMemoryStressTest
+  - name: Input Devices/Recording
+    description: Enumeration of and recordiing from available input devices
+    sceneNames:
+    - AudioStreamInput2DDemo
+    - AudioStreamInputDemo
+    - AudioStreamInput_iOS_ExternalDevicesDemo
+  - name: Output devices
+    description: Accessing of and playing on other than default output incl. channels
+    sceneNames:
+    - AudioSourceOutputDeviceDemo
+    - AudioSourceOutputDevicePrefabDemo
+    - AudioSourceOutputChannelsDemo
+    - MediaSourceOutputDeviceDemo
+    - MediaSourcePlaybackDemo
+    - OutputDeviceUnityMixerDemo
+    - OutputDeviceUnityMixerHotpluggingDemo
+  - name: Spatialization demos
+    description: Unity and Google Resonance spatializers including Input with Resonance
+    sceneNames:
+    - ResonanceSourceDemo
+    - ResonanceSoundfieldDemo
+    - ResonanceInputDemo
+    - UnitySpatializerDemo
+  - name: Separating input and output channels
+    description: AudioSource, AudioClip and Input channels playing separately in
+      scene
+    sceneNames:
+    - AudioSourceChannelsSeparationDemo
+    - AudioClipChannelsSeparationDemo
+    - AudioStreamInputChannelsSeparationDemo
+  - name: LAN
+    description: Local networking
+    sceneNames:
+    - AudioStreamNetMQSourceDemo
+    - AudioStreamNetMQClientDemo
+    - IcecastSourceDemo
