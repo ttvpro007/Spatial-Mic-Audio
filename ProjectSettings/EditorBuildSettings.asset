@@ -4,5 +4,89 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/_MainScene/AudioStreamMainScene.unity
+    guid: 043a2a49f308b7544b968fceb0c4a7ee
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamDemo.unity
+    guid: f111fa6f0e419b34882649f8ee7d25f7
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamRuntimeImport/AudioStreamRuntimeImportDemo.unity
+    guid: 48b8c96a7b85c5749ad01c74a4632284
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamMemory/AudioStreamMemoryDemo.unity
+    guid: 73c57c0cf78d1644b99c83a067b8a8fc
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamStressTest.unity
+    guid: 6efef920d80d3fc478b8c4f6cc6058ca
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamMinimalStressTest.unity
+    guid: 3df02d4e08405de4e95db438ce928cf2
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamRuntimeImport/AudioStreamRuntimeImportStressTest.unity
+    guid: 0ee86502fa6ee264986c91d93377ef42
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStream/AudioStreamMemory/AudioStreamMemoryStressTest.unity
+    guid: 1b0148f142cea384f85b4b35a1568aba
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStreamInput/AudioStreamInput2DDemo.unity
+    guid: 6ec0d41e825e9af4dae41ea3d5a29e90
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStreamInput/AudioStreamInputDemo.unity
+    guid: 3936a6da1579ca84e93a9f069abde90d
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/AudioStreamInput/AudioStreamInput_iOS_ExternalDevicesDemo.unity
+    guid: d4dca815ea1d9b346b64ca88070c6916
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/AudioSourceOutputDevice/AudioSourceOutputDeviceDemo.unity
+    guid: a01f0c40ea192ce4d91d72da6f30dbf0
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/AudioSourceOutputDevice/AudioSourceOutputDevicePrefabDemo.unity
+    guid: e4e5e9eb59e09dd4cacb5a42869523e5
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/AudioSourceOutputDevice/AudioSourceOutputChannelsDemo.unity
+    guid: fa2faf78484c2e047b0dc220b39e6e6d
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/MediaSourceOutputDevice/MediaSourceOutputDeviceDemo.unity
+    guid: 43102437d6ec49942a37ca8f160100f8
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/MediaSourceOutputDevice/MediaSourcePlaybackDemo.unity
+    guid: ca122627e5e30aa489eb5dea0b5870e9
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/UnityMixer/OutputDeviceUnityMixerDemo/OutputDeviceUnityMixerDemo.unity
+    guid: 088b47a05cc722d43828cb48259d566d
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/OutputDevice/UnityMixer/OutputDeviceUnityMixerHotpluggingDemo/OutputDeviceUnityMixerHotpluggingDemo.unity
+    guid: 1a6a2a230bf61bb4d923f21020795788
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ResonanceSpatializer/ResonanceSourceDemo.unity
+    guid: 516afc3e0d8ddad40bae29d1bb4cbd94
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ResonanceSpatializer/ResonanceSoundfieldDemo.unity
+    guid: 14df393ffe1f48440be09d640974cc7d
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ResonanceSpatializer/ResonanceInputDemo.unity
+    guid: 7be5560d8fe75044796133b8a1d70ae3
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/UnitySpatializer/UnitySpatializerDemo.unity
+    guid: 4e0da76aaeef33d4cad626fb7fad0b6b
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ChannelsSeparation/UnitySpatializer/AudioSource/AudioSourceChannelsSeparationDemo.unity
+    guid: 903c700914d9d2e45a914c0ca68d05fa
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ChannelsSeparation/UnitySpatializer/AudioSource/AudioClipChannelsSeparationDemo.unity
+    guid: 557ea7ad80c124749ba6758c9b8d1105
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/ChannelsSeparation/UnitySpatializer/AudioStreamInput/AudioStreamInputChannelsSeparationDemo.unity
+    guid: 07037062a330f3c41b606f7176c0a08d
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/Network/AudioStreamNetMQDemo/AudioStreamNetMQSourceDemo.unity
+    guid: ce020b2eb4974824eba5ea3e3c75b232
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/Network/AudioStreamNetMQDemo/AudioStreamNetMQClientDemo.unity
+    guid: fdd8d628d98a84f4db64922d1c05d6f7
+  - enabled: 1
+    path: Assets/Plugins/AudioStream/Demo/Network/IcecastSourceDemo/IcecastSourceDemo.unity
+    guid: e5972faa18a08564094866a23fc29f49
   m_configObjects: {}

@@ -7,6 +7,7 @@ public class RealtimeMicrophoneEditor : Editor
 {
     private void OnEnable()
     {
+        // Hook to the microphone property in the RealtimeMicrophone script
         microphone = serializedObject.FindProperty("microphone");
     }
 
@@ -28,6 +29,9 @@ public class RealtimeMicrophoneEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
+    /// <summary>
+    /// Show all the cached microphone devices
+    /// </summary>
     private void ShowMicrophoneDevicesDropdown()
     {
         if (microphoneDevices.Length == 0) return;
@@ -43,6 +47,9 @@ public class RealtimeMicrophoneEditor : Editor
     private SerializedProperty microphone;
     private string[] microphoneDevices = new string[0];
 
+    /// <summary>
+    /// Cache the list of available microphone devices 
+    /// </summary>
     private void CacheMicrophoneDevices()
     {
         if (microphoneDevices.Length == Microphone.devices.Length) return;

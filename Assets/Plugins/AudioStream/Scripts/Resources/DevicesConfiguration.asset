@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: DevicesConfiguration
   m_EditorClassIdentifier: 
   devicesConfiguration:
-  - sampleRate: 0
+  - sampleRate: 48000
     SPEAKERMODE: 0
-    NumOfRawSpeakers: 0
-    DSP_bufferLength: 0
-    DSP_numBuffers: 0
+    NumOfRawSpeakers: 16
+    DSP_bufferLength: 512
+    DSP_numBuffers: 4
   asio: 0
   ASIO_bufferSize: 512
   ASIO_bufferCount: 4

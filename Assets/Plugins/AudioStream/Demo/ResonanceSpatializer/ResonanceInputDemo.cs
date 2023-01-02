@@ -11,6 +11,7 @@ using UnityEngine;
 public class ResonanceInputDemo : MonoBehaviour
 {
     public ResonanceInput resonanceInput;
+    public ResonanceMicrophoneSelector microphoneSelector;
     /// <summary>
     /// available audio outputs reported by FMOD
     /// </summary>
@@ -102,6 +103,9 @@ public class ResonanceInputDemo : MonoBehaviour
                 // small reselect if out of range..
                 this.selectedInput = 0;
             }
+            
+            if (_includeLoopbacks)
+                this.selectedInput = microphoneSelector.Id;
         }
 
         // selection of available audio inputs at runtime
