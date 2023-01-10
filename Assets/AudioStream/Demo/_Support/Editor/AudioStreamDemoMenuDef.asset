@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aea3b0e144b26e94585e7541d51ebcda, type: 3}
+  m_Name: AudioStreamDemoMenuDef
+  m_EditorClassIdentifier: 
+  runtimeMenu: {fileID: 11400000, guid: 931961b1c571cb14291c48d4cce9c987, type: 2}
+  mainScene: {fileID: 102900000, guid: 043a2a49f308b7544b968fceb0c4a7ee, type: 3}
+  menuSections:
+  - name: Audio Streaming
+    description: Usage of main AudioStream and AudioStreamMinimal components
+    scenes:
+    - {fileID: 102900000, guid: f111fa6f0e419b34882649f8ee7d25f7, type: 3}
+    - {fileID: 102900000, guid: 48b8c96a7b85c5749ad01c74a4632284, type: 3}
+    - {fileID: 102900000, guid: 73c57c0cf78d1644b99c83a067b8a8fc, type: 3}
+    - {fileID: 102900000, guid: 6efef920d80d3fc478b8c4f6cc6058ca, type: 3}
+    - {fileID: 102900000, guid: 3df02d4e08405de4e95db438ce928cf2, type: 3}
+    - {fileID: 102900000, guid: 0ee86502fa6ee264986c91d93377ef42, type: 3}
+    - {fileID: 102900000, guid: 1b0148f142cea384f85b4b35a1568aba, type: 3}
+  - name: Input Devices/Recording
+    description: Enumeration of and recordiing from available input devices
+    scenes:
+    - {fileID: 102900000, guid: 6ec0d41e825e9af4dae41ea3d5a29e90, type: 3}
+    - {fileID: 102900000, guid: 3936a6da1579ca84e93a9f069abde90d, type: 3}
+    - {fileID: 102900000, guid: d4dca815ea1d9b346b64ca88070c6916, type: 3}
+  - name: Output devices
+    description: Accessing of and playing on other than default output incl. channels
+    scenes:
+    - {fileID: 102900000, guid: a01f0c40ea192ce4d91d72da6f30dbf0, type: 3}
+    - {fileID: 102900000, guid: e4e5e9eb59e09dd4cacb5a42869523e5, type: 3}
+    - {fileID: 102900000, guid: fa2faf78484c2e047b0dc220b39e6e6d, type: 3}
+    - {fileID: 102900000, guid: 43102437d6ec49942a37ca8f160100f8, type: 3}
+    - {fileID: 102900000, guid: ca122627e5e30aa489eb5dea0b5870e9, type: 3}
+    - {fileID: 102900000, guid: 088b47a05cc722d43828cb48259d566d, type: 3}
+    - {fileID: 102900000, guid: 1a6a2a230bf61bb4d923f21020795788, type: 3}
+  - name: Spatialization demos
+    description: Unity and Google Resonance spatializers including Input with Resonance
+    scenes:
+    - {fileID: 102900000, guid: 516afc3e0d8ddad40bae29d1bb4cbd94, type: 3}
+    - {fileID: 102900000, guid: 14df393ffe1f48440be09d640974cc7d, type: 3}
+    - {fileID: 102900000, guid: 7be5560d8fe75044796133b8a1d70ae3, type: 3}
+    - {fileID: 102900000, guid: 4e0da76aaeef33d4cad626fb7fad0b6b, type: 3}
+  - name: Separating input and output channels
+    description: AudioSource, AudioClip and Input channels playing separately in
+      scene
+    scenes:
+    - {fileID: 102900000, guid: 903c700914d9d2e45a914c0ca68d05fa, type: 3}
+    - {fileID: 102900000, guid: 557ea7ad80c124749ba6758c9b8d1105, type: 3}
+    - {fileID: 102900000, guid: 07037062a330f3c41b606f7176c0a08d, type: 3}
+  - name: LAN
+    description: Local networking
+    scenes:
+    - {fileID: 102900000, guid: ce020b2eb4974824eba5ea3e3c75b232, type: 3}
+    - {fileID: 102900000, guid: fdd8d628d98a84f4db64922d1c05d6f7, type: 3}
+    - {fileID: 102900000, guid: e5972faa18a08564094866a23fc29f49, type: 3}
+  copyDemoScenesToBuildSettings: 1

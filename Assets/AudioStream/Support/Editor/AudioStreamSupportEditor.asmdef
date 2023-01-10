@@ -1,0 +1,17 @@
+{
+    "name": "AudioStreamSupportEditor",
+    "references": [
+        "GUID:876660fd0d995574d9ad99f9c4fabe4d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
