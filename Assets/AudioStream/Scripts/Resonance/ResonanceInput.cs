@@ -22,6 +22,10 @@ namespace AudioStream
         [Tooltip("If left empty, main camera transform will be considered for listener position")]
         public Transform listener;
 
+        [Range(-80f, 24f)]
+        [Tooltip("Gain")]
+        public float gain = 0f;
+
         [Range(0f, 360f)]
         [Tooltip("Spread")]
         public float spread = 0f;
@@ -164,6 +168,7 @@ namespace AudioStream
             this.resonanceSource_DSP = ResonancePlugin.New_ResonanceSource_DSP();
             this.resonanceListener_DSP = ResonancePlugin.New_ResonanceListener_DSP();
             this.resonancePlugin.ResonanceListener_SetRoomProperties(this.resonanceListener_DSP);
+            this.resonancePlugin.ResonanceListener_SetGain(0, this.resonanceListener_DSP);
             //
             // Play the sound on 'Resonance' channel group along recording
             // that will run the DSP chain
@@ -188,7 +193,7 @@ namespace AudioStream
             result = this.recording_system.system.playSound(this.sound, this.resonanceChannelGroup, false, out channel);
             ERRCHECK(result, "this.recording_system.system.playSound");
 
-            result = this.resonanceChannelGroup.setVolume(this.gain);
+            result = this.resonanceChannelGroup.setVolume(1);
             ERRCHECK(result, "resonanceChannelGroup.setVolume");
 
             this.dspRunning = true;
@@ -200,9 +205,6 @@ namespace AudioStream
         {
             result = this.recording_system.Update();
             ERRCHECK(result, "this.recording_system.Update", false);
-
-            result = this.resonanceChannelGroup.setVolume(this.gain);
-            // ERRCHECK(result, "channel.setVolume");
         }
 
         protected override void RecordingStopped()

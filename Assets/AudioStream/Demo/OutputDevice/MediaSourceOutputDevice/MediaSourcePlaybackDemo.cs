@@ -29,7 +29,7 @@ public class MediaSourcePlaybackDemo : MonoBehaviour
     /// <summary>
     /// has to be independent from user sound/channel to be manipulable when channel is not playing
     /// </summary>
-    float channel_volume = 1f;
+    float channel_volume = 0.5f;
 
     #region UI events
 

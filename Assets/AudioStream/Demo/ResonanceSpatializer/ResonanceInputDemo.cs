@@ -108,7 +108,7 @@ public class ResonanceInputDemo : MonoBehaviour
         // list can be long w/ special devices with many ports so wrap it in scroll view
         this.scrollPosition1 = GUILayout.BeginScrollView(this.scrollPosition1, new GUIStyle());
 
-        this.selectedInput = GUILayout.SelectionGrid(this.selectedInput, this.availableInputs.Select((input, index) => string.Format("[Input #: {0}] {1} rate: {2} speaker mode: {3} channels: {4}", index, input.name, input.samplerate, input.speakermode, input.channels)).ToArray()
+        this.selectedInput = GUILayout.SelectionGrid(this.selectedInput, this.availableInputs.Select((input, index) => string.Format("{0}[Input #{1} |ID {2}|] {3} rate: {4} speaker mode: {5} channels: {6}", input.isDefault ? "(*) " : "", index, input.id, input.name, input.samplerate, input.speakermode, input.channels)).ToArray()
             , 1
             , AudioStreamSupport.UX.guiStyleButtonNormal
             , GUILayout.MaxWidth(Screen.width)
@@ -165,15 +165,11 @@ public class ResonanceInputDemo : MonoBehaviour
 
             GUILayout.Label("Recording will automatically restart if it was running after changing these.", AudioStreamSupport.UX.guiStyleLabelNormal);
 
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Label("Gain: ", AudioStreamSupport.UX.guiStyleLabelNormal);
-
-            this.resonanceInput.gain = GUILayout.HorizontalSlider(this.resonanceInput.gain, 0f, 10f);
-            GUILayout.Label(Mathf.Round(this.resonanceInput.gain * 100f) + " %", AudioStreamSupport.UX.guiStyleLabelNormal);
-
-            GUILayout.EndHorizontal();
-
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label(string.Format("Volume: {0} dB", Mathf.RoundToInt(this.resonanceInput.gain)), AudioStreamSupport.UX.guiStyleLabelNormal, GUILayout.MaxWidth(Screen.width / 2));
+                this.resonanceInput.gain = GUILayout.HorizontalSlider(this.resonanceInput.gain, -80f, 24f, GUILayout.MaxWidth(Screen.width / 2));
+            }
 
             GUILayout.BeginHorizontal();
 

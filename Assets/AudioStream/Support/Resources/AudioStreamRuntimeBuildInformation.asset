@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58321668d2d9ed54482861f223e762b2, type: 3}
   m_Name: AudioStreamRuntimeBuildInformation
   m_EditorClassIdentifier: 
-  scriptingBackend: Mono2x
+  scriptingBackend: IL2CPP
   apiLevel: NET_4_6
-  buildTime: January 04 2023
+  buildTime: January 10 2023
   playerCanUseHTTP: 1

@@ -13,7 +13,7 @@ namespace AudioStream
     /// </summary>
     public static class About
     {
-        public static string versionNumber = "3.2b";
+        public static string versionNumber = "3.2";
         public static string versionString = "AudioStream v " + About.versionNumber + " © 2016-2023 Martin Cvengros";
         public static string fmodNotice = ", uses FMOD by Firelight Technologies Pty Ltd";
         /// <summary>

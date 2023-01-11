@@ -4,6 +4,8 @@
 // (c) and license see LICENSE in AudioStream/Scripts/Codecs/Concentus/LICENSE
 using System;
 
+// using System.IO;
+
 namespace AudioStreamSupport
 {
     public class BasicBuffer<T>
@@ -280,14 +282,29 @@ namespace AudioStreamSupport
         private int available = 0;
         private int capacity = 0;
 
+        // Debug RAW save
+        // FileStream fs;
+        // BinaryWriter bw;
         public BasicBufferByte(int capacity)
         {
             this.capacity = capacity;
             data = new byte[capacity];
+            //this.fs = new FileStream(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), string.Format("Binary{0}.RAW", Path.GetFileName(Path.GetTempFileName())))
+            //    , FileMode.Create, FileAccess.Write, FileShare.None)
+            //    ;
+            //this.bw = new BinaryWriter(this.fs);
         }
+
+        //public void Close()
+        //{
+        //    this.bw.Close();
+        //    this.fs.Close();
+        //}
 
         public void Write(byte[] toWrite)
         {
+            // this.bw.Write(toWrite);
+
             // Write the data in chunks
             int sourceIndex = 0;
             while (sourceIndex < toWrite.Length)

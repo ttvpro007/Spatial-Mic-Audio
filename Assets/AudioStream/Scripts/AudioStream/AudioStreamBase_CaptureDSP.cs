@@ -23,6 +23,12 @@ namespace AudioStream
          * due to IL2CPP not supporting marshaling delegates that point to instance methods to native code we need to circumvent this via static dispatch
          */
         [AOT.MonoPInvokeCallback(typeof(DSP_READ_CALLBACK))]
+#if ENABLE_IL2CPP
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+        // TODO: class method,
         static RESULT DSP_READCALLBACK(ref DSP_STATE dsp_state, IntPtr inbuffer, IntPtr outbuffer, uint length, int inchannels, ref int outchannels)
         {
             lock (AudioStreamBase.dsp_callback_lock)

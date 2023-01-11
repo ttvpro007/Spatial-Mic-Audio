@@ -236,9 +236,7 @@ namespace AudioStream
             var dlength = data.Length;
             
             // always drain incoming buffer
-            // drain 1 : 1 to requested output consistently for best latency
-            var inputDrainSync = this.recChannels > this.outputChannels ? this.recChannels / (float)this.outputChannels : 1f;
-            var inputSignal = this.GetAudioOutputBuffer((uint)dlength * (uint)inputDrainSync);
+            var inputSignal = this.GetAudioOutputBuffer((uint)dlength);
 
             // if paused don't process it
             if (this.isPaused)
@@ -251,14 +249,14 @@ namespace AudioStream
                 // if resampling is not needed just copy original signal out 
                 if (!this.resampleInput)
                 {
-                    for (int i = 0; i < Mathf.Min(dlength, inputSignal_length); ++i) data[i] += (inputSignal[i] * this.gain);
+                    for (int i = 0; i < Mathf.Min(dlength, inputSignal_length); ++i) data[i] += inputSignal[i];
                     return;
                 }
 
                 if (this.useUnityToResampleAndMapChannels)
                 {
                     // just fill the output buffer with input signal and leave everything to Unity
-                    for (int i = 0; i < Mathf.Min(dlength, inputSignal_length); ++i) data[i] += (inputSignal[i] * this.gain);
+                    for (int i = 0; i < Mathf.Min(dlength, inputSignal_length); ++i) data[i] += inputSignal[i];
                 }
                 else
                 {
@@ -333,7 +331,7 @@ namespace AudioStream
                     var length = Mathf.Min(dlength, this.oafrOutputBuffer.Available());
 
                     var outArr = this.oafrOutputBuffer.Read(length);
-                    for (int i = 0; i < length; ++i) data[i] += (outArr[i] * this.gain);
+                    for (int i = 0; i < length; ++i) data[i] += outArr[i];
 
                     // if (dlength > length) LOG(LogLevel.WARNING, "!skipped frame: {0}", length);
                 }
@@ -342,6 +340,10 @@ namespace AudioStream
 
         protected override void RecordingStopped()
         {
+            var asource = this.GetComponent<AudioSource>();
+            if (asource)
+                asource.Stop();
+
             this.customMixMatrix = null;
         }
         #endregion

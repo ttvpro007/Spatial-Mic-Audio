@@ -22,22 +22,26 @@ namespace AudioStream
         protected override void RecordingStarted()
         {
             // setup AudioSource with single channel AudioClip
-            var @as = this.GetComponent<AudioSource>();
-            Destroy(@as.clip);
+            var aspump = this.GetComponent<AudioSource>();
+            if (aspump.clip)
+            {
+                this.LOG(LogLevel.WARNING, "Existing AudioClip {0} not used and will be destroyed", aspump.clip.name);
+                Destroy(aspump.clip);
+            }
 
             var ac = AudioSettings.GetConfiguration();
-            @as.clip = AudioClip.Create("AudioInputPumpLoop", ac.sampleRate, UnityAudio.ChannelsFromUnityDefaultSpeakerMode(), ac.sampleRate, false);
-            @as.loop = true;
-            @as.Play();
+            aspump.clip = AudioClip.Create("AudioInputPumpLoop", ac.sampleRate, UnityAudio.ChannelsFromUnityDefaultSpeakerMode(), ac.sampleRate, false);
+            aspump.loop = true;
+            aspump.Play();
 
             // instantiate and play AudioSource prefab per recording channel
             this.channelBuffer = new MultiChannelBuffer(this.recChannels);
             this.audioSourceChannels = new AudioSourceChannel[this.channelBuffer.channelCount];
             for (var i = 0; i < this.audioSourceChannels.Length; ++i)
             {
-                var newAS = Instantiate(this.audioSourceChannelPrefab);
-                newAS.Setup(i, this.channelBuffer, this.recRate, this.GetComponent<AudioSource>().clip.name, this.GetComponent<AudioSource>().volume, true);
-                this.audioSourceChannels[i] = newAS;
+                var aschannel = Instantiate(this.audioSourceChannelPrefab);
+                aschannel.Setup(i, this.channelBuffer, this.recRate, aspump.clip.name, aspump.volume, true);
+                this.audioSourceChannels[i] = aschannel;
             }
 
             // play all channels
@@ -47,8 +51,8 @@ namespace AudioStream
 
         protected override void RecordingStopped()
         {
-            var @as = this.GetComponent<AudioSource>();
-            @as.Stop();
+            var aspump = this.GetComponent<AudioSource>();
+            aspump.Stop();
 
             foreach (var ch in this.audioSourceChannels)
                 ch.Stop();
@@ -68,29 +72,34 @@ namespace AudioStream
 #endif
         void OnAudioFilterRead(float[] data, int channels)
         {
-            // keep record update loop running even if paused
+            // keep record update loop running
             this.UpdateRecordBuffer();
 
             if (this.channelBuffer == null)
                 return;
 
-            // immedaitely retrieve recorded audio and split its channels
-            var inputSignal = this.GetAudioOutputBuffer((uint)(this.blocklength * this.recChannels));
+            // retrieve recorded audio and split its channels
+            var inputSignal = this.GetAudioOutputBuffer((uint)(data.Length / channels * this.recChannels));
             var inputSignalLength = inputSignal.Length;
 
-            var channels_separated = new List<float[]>();
-            for (var ch = 0; ch < this.recChannels; ++ch)
-                channels_separated.Add(new float[inputSignalLength / this.recChannels]);
-
-            for (var i = 0; i < inputSignalLength; i += this.recChannels)
+            if (inputSignalLength > 0)
             {
+                var channels_separated = new List<float[]>();
                 for (var ch = 0; ch < this.recChannels; ++ch)
-                    channels_separated[ch][i / this.recChannels] = inputSignal[i + ch];
+                    channels_separated.Add(new float[inputSignalLength / this.recChannels]);
+
+                for (var i = 0; i < inputSignalLength; i += this.recChannels)
+                {
+                    for (var ch = 0; ch < this.recChannels; ++ch)
+                        channels_separated[ch][i / this.recChannels] = inputSignal[i + ch];
+                }
+
+                for (var ch = 0; ch < this.recChannels; ++ch)
+                    this.channelBuffer.Add(ch, channels_separated[ch]);
             }
 
-            for (var ch = 0; ch < this.recChannels; ++ch)
-                this.channelBuffer.Add(ch, channels_separated[ch]);
-
+            //for (var i = 0; i < Mathf.Min(data.Length, inputSignalLength); ++i)
+            //    data[i] = inputSignal[i];
             System.Array.Clear(data, 0, data.Length);
         }
     }

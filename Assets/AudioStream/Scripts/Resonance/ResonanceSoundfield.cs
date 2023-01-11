@@ -96,9 +96,6 @@ namespace AudioStream
             {
                 // remove DSPs first (if e.g. changing scene directly)
                 this.StreamStopping();
-
-                ResonancePlugin.Unload();
-                this.resonancePlugin = null;
             }
 
             base.OnDestroy();
@@ -118,6 +115,7 @@ namespace AudioStream
             this.resonanceSoundfield_DSP = ResonancePlugin.New_ResonanceSoundfield_DSP();
             this.resonanceListener_DSP = ResonancePlugin.New_ResonanceListener_DSP();
             this.resonancePlugin.ResonanceListener_SetRoomProperties(this.resonanceListener_DSP);
+            this.resonancePlugin.ResonanceListener_SetGain(0, this.resonanceListener_DSP);
             // 
             // Create separate 'Resonance' channel group
             // 
@@ -140,7 +138,7 @@ namespace AudioStream
             this.channel.setChannelGroup(this.resonanceChannelGroup);
             ERRCHECK(result, "channel.setChannelGroup");
 
-            result = this.resonanceChannelGroup.setVolume(this.gain);
+            result = this.resonanceChannelGroup.setVolume(1);
             ERRCHECK(result, "resonanceChannelGroup.setVolume");
 
             this.channel.setVolume(1);
@@ -149,14 +147,6 @@ namespace AudioStream
 
         protected override void StreamStarving()
         {
-            if (this.resonanceChannelGroup.hasHandle())
-            {
-                if (!starving)
-                {
-                    result = this.resonanceChannelGroup.setVolume(this.gain);
-                    //ERRCHECK(result, "channel.setVolume", false);
-                }
-            }
         }
 
         protected override void StreamStopping()

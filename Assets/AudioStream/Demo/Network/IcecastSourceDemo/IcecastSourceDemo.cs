@@ -300,7 +300,7 @@ public class IcecastSourceDemo : MonoBehaviour
                 // list can be long w/ special devices with many ports so wrap it in scroll view
                 this.scrollPosition1 = GUILayout.BeginScrollView(this.scrollPosition1, new GUIStyle());
 
-                this.selectedInput = GUILayout.SelectionGrid(this.selectedInput, this.availableInputs.Select((input, index) => string.Format("[Input #: {0}] {1} rate: {2} speaker mode: {3} channels: {4}", index, input.name, input.samplerate, input.speakermode, input.channels)).ToArray()
+                this.selectedInput = GUILayout.SelectionGrid(this.selectedInput, this.availableInputs.Select((input, index) => string.Format("{0}[Input #{1} |ID {2}|] {3} rate: {4} speaker mode: {5} channels: {6}", input.isDefault ? "(*) " : "", index, input.id, input.name, input.samplerate, input.speakermode, input.channels)).ToArray()
                     , 1
                     , AudioStreamSupport.UX.guiStyleButtonNormal
                     , GUILayout.MaxWidth(Screen.width / 2)
@@ -336,8 +336,8 @@ public class IcecastSourceDemo : MonoBehaviour
 
                 GUILayout.Label("Gain: ", AudioStreamSupport.UX.guiStyleLabelNormal);
 
-                this.audioStreamInput2D.gain = GUILayout.HorizontalSlider(this.audioStreamInput2D.gain, 0f, 5f);
-                GUILayout.Label(Mathf.Round(this.audioStreamInput2D.gain * 100f) + " %", AudioStreamSupport.UX.guiStyleLabelNormal);
+                this.audioStreamInput2D.recordGain = GUILayout.HorizontalSlider(this.audioStreamInput2D.recordGain, 0f, 5f);
+                GUILayout.Label(Mathf.Round(this.audioStreamInput2D.recordGain * 100f) + " %", AudioStreamSupport.UX.guiStyleLabelNormal);
 
                 GUILayout.EndHorizontal();
 

@@ -333,8 +333,8 @@ namespace AudioStream
             {
                 result = system.update(); /* Process the DSP queue */
                 ERRCHECK(result, "system.update", false);
-                result = system.unloadPlugin(resonancePlugin_handle);
 
+                result = system.unloadPlugin(resonancePlugin_handle);
                 if (result == FMOD.RESULT.ERR_DSP_INUSE)
                 {
                     var t = 10;

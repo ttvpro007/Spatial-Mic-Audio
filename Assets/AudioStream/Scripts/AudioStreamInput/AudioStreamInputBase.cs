@@ -16,7 +16,6 @@ namespace AudioStream
         protected abstract void RecordingUpdate();
         protected abstract void RecordingStopped();
         #endregion
-
         // ========================================================================================================================================
         #region Editor
         // "No. of audio channels provided by selected recording device.
@@ -38,7 +37,7 @@ namespace AudioStream
 
 		[Tooltip("Input gain. Default 1\r\nBoosting this artificially to high value can help with faint signals for e.g. further reactive processing (although will probably distort audible signal)")]
 		[Range(0f, 10f)]
-		public float gain = 1f;
+		public float recordGain = 1f;
 
         [Header("[Input mixer latency (ms)]")]
         [ReadOnly]
@@ -65,10 +64,12 @@ namespace AudioStream
         /// GO name to be accessible from all the threads if needed
         /// </summary>
         protected string gameObjectName = string.Empty;
+        /// <summary>
+        /// default sizes, currently info only
+        /// </summary>
         uint dspBufferLength_Auto = 1024;
         uint dspBufferCount_Auto = 4;
         #endregion
-
         // ========================================================================================================================================
         #region Init && FMOD structures
         /// <summary>
@@ -90,13 +91,8 @@ namespace AudioStream
         protected FMOD.Sound sound;
         protected FMOD.RESULT result;
         FMOD.RESULT lastError = FMOD.RESULT.OK;
-        FMOD.CREATESOUNDEXINFO exinfo;
-        uint datalength = 0;
-        uint soundlength;
-        uint recordpos = 0;
-        uint lastrecordpos = 0;
         /// <summary>
-        /// cached size for single channel for used format
+        /// cached size for single channel for used PCMFLOAT format
         /// </summary>
         protected int channelSize = sizeof(float);
         /// <summary>
@@ -164,7 +160,7 @@ namespace AudioStream
                 if (numConnectedDrivers > 0)
                     break;
 
-                if (++retries > 30)
+                if (++retries > 5)
                 {
                     var msg = string.Format("There seems to be no audio input device connected");
 
@@ -203,12 +199,23 @@ namespace AudioStream
         public bool isPaused = false;
         public void Record()
         {
+            if (!this.ready
+                || this.isRecording
+                || this.isPaused
+                )
+            {
+                var msg = "Not yet ready or already recording (make sure to check 'ready' flag before Recording)";
+                this.LOG(LogLevel.ERROR, msg);
+                this.OnError.Invoke(msg, "");
+                return;
+            }
+
             this.outputSampleRate = AudioSettings.outputSampleRate;
             this.outputChannels = UnityAudio.ChannelsFromUnityDefaultSpeakerMode();
 
             StartCoroutine(this.Record_CR());
         }
-        public IEnumerator Record_CR()
+        IEnumerator Record_CR()
         {
             if (!this.ready)
             {
@@ -232,40 +239,6 @@ namespace AudioStream
             this.isPaused = false;
 
             this.Stop_Internal(); // try to clean partially started recording / Start initialized system
-
-            // wait for FMDO to catch up - recordDrivers are not populated if called immediately [e.g. from Start]
-
-            int numAllDrivers = 0;
-            int numConnectedDrivers = 0;
-            int retries = 0;
-
-            while (numConnectedDrivers < 1)
-            {
-                result = this.recording_system.Update();
-                ERRCHECK(result, "this.recording_system.Update");
-
-                result = this.recording_system.system.getRecordNumDrivers(out numAllDrivers, out numConnectedDrivers);
-                ERRCHECK(result, "this.recording_system.system.getRecordNumDrivers");
-
-                LOG(LogLevel.INFO, "Drivers\\Connected drivers: {0}\\{1}", numAllDrivers, numConnectedDrivers);
-
-                if (numConnectedDrivers > 0)
-                    break;
-
-                if (++retries > 30)
-                {
-                    var msg = string.Format("There seems to be no audio input device connected");
-
-                    LOG(LogLevel.ERROR, msg);
-
-                    if (this.OnError != null)
-                        this.OnError.Invoke(this.gameObjectName, msg);
-
-                    yield break;
-                }
-
-                yield return new WaitForSeconds(1f);
-            }
 
             // Unity 2017.1 and up has iOS Player Setting 'Force iOS Speakers when Recording' which should be respected
             #if !UNITY_2017_1_OR_NEWER
@@ -297,11 +270,11 @@ namespace AudioStream
             result = this.recording_system.system.getRecordDriverInfo(this.recordDeviceId, out name, namelen, out guid, out this.recRate, out speakermode, out this.recChannels, out driverstate);
             ERRCHECK(result, "this.recording_system.system.getRecordDriverInfo");
 
-            exinfo = new FMOD.CREATESOUNDEXINFO();
+            var exinfo = new FMOD.CREATESOUNDEXINFO();
             exinfo.numchannels = this.recChannels;
-            exinfo.format = FMOD.SOUND_FORMAT.PCMFLOAT;                                 // this implies higher bandwidth (i.e. 4 bytes per channel/sample) but seems to work on desktops with DSP sizes low enough
+            exinfo.format = FMOD.SOUND_FORMAT.PCMFLOAT;                                     // this implies higher bandwidth (i.e. 4 bytes per channel) but seems to work on desktops with DSP sizes low enough
             exinfo.defaultfrequency = this.recRate;
-            exinfo.length = (uint)(this.recRate * this.channelSize * this.recChannels); // 1 second buffer, size here doesn't change latency
+            exinfo.length = (uint)(this.recRate * this.channelSize * this.recChannels * 5); // .. 5 seconds buffer, size here doesn't change latency
             exinfo.cbsize = Marshal.SizeOf(exinfo);
 
             result = this.recording_system.system.createSound(string.Empty, FMOD.MODE.LOOP_NORMAL | FMOD.MODE.OPENUSER, ref exinfo, out this.sound);
@@ -312,16 +285,17 @@ namespace AudioStream
             result = this.recording_system.system.recordStart(this.recordDeviceId, this.sound, true);
             ERRCHECK(result, "this.recording_system.system.recordStart");
 
-            result = this.sound.getLength(out soundlength, FMOD.TIMEUNIT.PCM);
+            result = this.sound.getLength(out this.soundlength, FMOD.TIMEUNIT.PCM);
             ERRCHECK(result, "sound.getLength");
 
-            datalength = 0;
-
-            // compute latency
-            uint blocksize;
+            // compute rec latency
             int numblocks;
+            uint blocksize;
             result = this.recording_system.system.getDSPBufferSize(out blocksize, out numblocks);
             ERRCHECK(result, "this.recording_system.system.getDSPBufferSize");
+
+            // Debug.LogFormat("DSP block: {0} # blocks: {1}", this.blocksize, numblocks);
+            // DSP block: 1024 # blocks: 4
 
             int samplerate;
             FMOD.SPEAKERMODE sm;
@@ -329,27 +303,78 @@ namespace AudioStream
             result = this.recording_system.system.getSoftwareFormat(out samplerate, out sm, out speakers);
             ERRCHECK(result, "this.recording_system.system.getSoftwareFormat");
 
-            float ms = (float)blocksize * 1000.0f / (float)samplerate;
-
+            float ms = blocksize * 1000.0f / samplerate;
             this.latencyBlock = ms;
             this.latencyTotal = ms * numblocks;
             this.latencyAverage = ms * ((float)numblocks - 1.5f);
 
+            // this is really for playSound which is used in Resonance components:
             // defer a complete derived startup until desired (*) latency is reached to avoid glitches
             // (*) this is computed incl. drift in FMOD record.cpp sample - here the avg. is taken for simplicity for now
-            // TODO: user desired latency slider.
-            var df = this.latencyAverage / 1000f;
+            // TODO: user desired latency (/slider)
+            //
+            // and for FMOD 'warmup' not ready when running from Start on 'recordOnStart'
+            // compute how much latency is worth one rec. block ( how much samples "make sense" for sound.lock )
+            // if (first) rec. position is further than this on read from sound.lock buffer, ignore the content since it yields to glitched garbage content
+            // (this lasts until rec/last rec positions settle and it's present when e.g. 'recordOnStart' is on, but not on subsequent starts..)
+            // TODO: user desired latency (/slider)
+
+            // this effectively deos a 'dry run' of rec buffer over few frames - prob. well worth over anything else;
+
+            var df = this.latencyTotal / 1000f;
             var time = 0f;
+            var c = 0;
+            uint recordDeltaRunningAvg = 0;
+            this.lastrecordpos = 0;
             do
             {
-                this.LOG(LogLevel.INFO, "Playback delay to meet buffer latency {0} / {1} ms", time, df);
+                // returned position is in samples
+                result = this.recording_system.system.getRecordPosition(this.recordDeviceId, out this.recordpos);
+                ERRCHECK(result, "this.recording_system.system.getRecordPosition", false);
+
+                if (this.recordpos != this.lastrecordpos)
+                {
+                    this.recordDelta = (int)this.recordpos - (int)this.lastrecordpos;
+                    if (this.recordDelta < 0)
+                        this.recordDelta += (int)this.soundlength;
+
+                    var offset = (uint)(this.lastrecordpos * this.channelSize * this.recChannels);
+                    var length = (uint)(this.recordDelta * this.channelSize * this.recChannels);
+
+                    result = this.sound.@lock(offset, length, out this.ptr1, out this.ptr2, out this.len1, out this.len2);
+                    ERRCHECK(result, "sound.@lock", false);
+                    if (result != FMOD.RESULT.OK)
+                        yield break;
+
+                    result = this.sound.unlock(this.ptr1, this.ptr2, this.len1, this.len2);
+                    ERRCHECK(result, "sound.unlock", false);
+                    if (result != FMOD.RESULT.OK)
+                        yield break;
+
+                    recordDeltaRunningAvg = (uint)((recordDeltaRunningAvg + this.recordDelta) / 2f);
+                }
+
+                this.LOG(LogLevel.DEBUG, "Playback delay to meet buffer latency {0}/{1} ms + avg. samples: {2}", time, df, recordDeltaRunningAvg);
 
                 result = this.recording_system.Update();
                 ERRCHECK(result, "recording_system.Update");
 
                 yield return null;
 
-            } while ((time += Time.deltaTime) < df);
+            } while (((time += Time.deltaTime) < df) || ++c < 5);
+
+            // get 'reasonable' max. samples pre rec. read from current latency (total should make this work on lower performing devices)
+            this.soundLockMaxSamples = (uint)(this.latencyTotal * this.recRate / 1000f * 1.5f);
+            this.LOG(LogLevel.INFO, "Running max samples: {0}", this.soundLockMaxSamples);
+
+            //
+            // playSound is OK, resample & quality, only has latency gap
+            // FMOD.Channel channel;
+            // FMOD.ChannelGroup chmaster;
+            // this.recording_system.system.getMasterChannelGroup(out chmaster);
+            // result = this.recording_system.system.playSound(this.sound, chmaster, false, out channel);
+            // ERRCHECK(result, "this.recording_system.system.playSound");
+            //
 
             // specific setup/s now
             this.RecordingStarted();
@@ -361,18 +386,27 @@ namespace AudioStream
 
             while (this.isRecording)
             {
+                result = this.recording_system.Update();
+                ERRCHECK(result, "this.recording_system.Update", false);
+
                 this.RecordingUpdate();
                 yield return null;
             }
         }
-        /// <summary>
-        /// recording buffer block length member for immediate copy
-        /// </summary>
-        protected int blocklength;
-
         // TODO: implement RMS and other potentially useful stats per input channel
         // - add meters to demo scenes separately for input...
 
+        /// <summary>
+        /// sound.@lock offset + length
+        /// (even ChatGPT says access to member variables is faster than methods locals)
+        /// </summary>
+        uint soundlength;
+        uint recordpos = 0;
+        uint lastrecordpos = 0;
+        uint soundLockMaxSamples;
+        System.IntPtr ptr1, ptr2;
+        uint len1, len2;
+        protected int recordDelta;
         /// <summary>
         /// Helper method called from descendant which copies raw audio of FMOD sound to Unity buffer - if needed
         /// Updates FMOD system
@@ -380,60 +414,60 @@ namespace AudioStream
         /// </summary>
         protected void UpdateRecordBuffer()
         {
-            result = this.recording_system.Update();
-            ERRCHECK(result, "this.recording_system.system.update", false);
-
-            result = this.recording_system.system.getRecordPosition(this.recordDeviceId, out recordpos);
+            // returned position is in samples
+            result = this.recording_system.system.getRecordPosition(this.recordDeviceId, out this.recordpos);
             ERRCHECK(result, "this.recording_system.system.getRecordPosition", false);
-            /// <summary>
-            /// FMOD recording buffers and their lengths
-            /// </summary>
-            System.IntPtr ptr1, ptr2;
-            uint len1, len2;
 
-            if (recordpos != lastrecordpos)
+            if (this.recordpos != this.lastrecordpos)
             {
-                this.blocklength = (int)recordpos - (int)lastrecordpos;
-                if (this.blocklength < 0)
-                {
-                    this.blocklength += (int)soundlength;
-                }
+                this.recordDelta = (int)this.recordpos - (int)this.lastrecordpos;
+                if (this.recordDelta < 0)
+                    this.recordDelta += (int)this.soundlength;
 
-                // Lock the sound to get access to the raw data.
-                // ex.: if e.g. stereo 16bit, exinfo.numchannels * 2 = 1 sample = 4 bytes.
-                result = this.sound.@lock((uint)(lastrecordpos * this.recChannels * this.channelSize), (uint)(this.blocklength * this.recChannels * this.channelSize), out ptr1, out ptr2, out len1, out len2);
+                // Debug.LogFormat("Rec delta {0} | {1} - {2} |", this.recordDelta, this.recordpos, this.lastrecordpos);
+
+                var offset = (uint)(this.lastrecordpos * this.channelSize * this.recChannels);
+                var length = (uint)(this.recordDelta * this.channelSize * this.recChannels);
+
+                result = this.sound.@lock(offset, length, out this.ptr1, out this.ptr2, out this.len1, out this.len2);
+                ERRCHECK(result, "sound.@lock", false);
                 if (result != FMOD.RESULT.OK)
                     return;
-
-                // Write it to output.
-                if (ptr1 != System.IntPtr.Zero && len1 > 0)
+                //
+                // should skip garbage glitches present on autostart
+                // 
+                if (this.recordDelta <= this.soundLockMaxSamples)
                 {
-                    datalength += len1;
-                    byte[] barr = new byte[len1];
-                    Marshal.Copy(ptr1, barr, 0, (int)len1);
+                    // Write it to output.
+                    if (this.ptr2 != System.IntPtr.Zero && this.len2 > 0)
+                    {
+                        byte[] barr = new byte[this.len2];
+                        Marshal.Copy(this.ptr2, barr, 0, (int)this.len2);
 
-                    this.AddBytesToOutputBuffer(barr);
+                        this.AddBytesToOutputBuffer(barr);
+                    }
+                    else if (this.ptr1 != System.IntPtr.Zero && this.len1 > 0)
+                    {
+                        byte[] barr = new byte[this.len1];
+                        Marshal.Copy(this.ptr1, barr, 0, (int)this.len1);
+
+                        this.AddBytesToOutputBuffer(barr);
+                    }
                 }
-                if (ptr2 != System.IntPtr.Zero && len2 > 0)
+                else
                 {
-                    datalength += len2;
-                    byte[] barr = new byte[len2];
-                    Marshal.Copy(ptr2, barr, 0, (int)len2);
-
-                    this.AddBytesToOutputBuffer(barr);
+                    // this *still* happens even after the 'dry run'
+                    this.LOG(LogLevel.INFO, "Runaway delta samples: {0}, max: {1}", this.recordDelta, this.soundLockMaxSamples);
                 }
 
                 // Unlock the sound to allow FMOD to use it again.
-                result = this.sound.unlock(ptr1, ptr2, len1, len2);
+                result = this.sound.unlock(this.ptr1, this.ptr2, this.len1, this.len2);
+                ERRCHECK(result, "sound.unlock", false);
                 if (result != FMOD.RESULT.OK)
                     return;
             }
-            else
-            {
-                len1 = len2 = 0;
-            }
 
-            lastrecordpos = recordpos;
+            this.lastrecordpos = this.recordpos;
         }
 
         public void Pause(bool pause)
@@ -492,6 +526,8 @@ namespace AudioStream
 
             this.Stop_Internal();
 
+            // this.outputBuffer.Close();
+
             if (this.OnRecordingStopped != null)
                 this.OnRecordingStopped.Invoke(this.gameObjectName);
         }
@@ -501,14 +537,11 @@ namespace AudioStream
         /// </summary>
         void Stop_Internal()
         {
-            var asource = this.GetComponent<AudioSource>();
-            if (asource)
-            {
-                asource.Stop();
-            }
-
             this.isRecording = false;
             this.isPaused = false;
+
+            result = this.recording_system.system.recordStop(this.recordDeviceId);
+            ERRCHECK(result, "system.recordStop", false);
 
             /*
                 Shut down sound
@@ -557,15 +590,14 @@ namespace AudioStream
         /// Exchange buffer between FMOD and Unity
         /// this needs capacity at contruction but will be resized later if needed
         /// </summary>
-        BasicBufferByte outputBuffer = new BasicBufferByte(10000);
-        readonly object outputBufferLock = new object();
+        BasicBufferFloat outputBuffer = new BasicBufferFloat(10000);
         /// <summary>
         /// Stores audio retrieved from FMOD's sound for Unity
         /// </summary>
         /// <param name="arr"></param>
         void AddBytesToOutputBuffer(byte[] arr)
         {
-            lock (this.outputBufferLock)
+            lock (this.outputBuffer)
             {
                 // if it's paused discard retrieved input ( but the whole recording update loop is running to allow for seamless continuation )
                 if (this.isPaused)
@@ -585,13 +617,20 @@ namespace AudioStream
                         );
 
                     // preserve existing data
-                    BasicBufferByte newBuffer = new BasicBufferByte(newCap);
+                    BasicBufferFloat newBuffer = new BasicBufferFloat(newCap);
                     newBuffer.Write(this.outputBuffer.Read(this.outputBuffer.Available()));
 
                     this.outputBuffer = newBuffer;
                 }
 
-                this.outputBuffer.Write(arr);
+                var farr = new float[arr.Length / this.channelSize];
+                System.Buffer.BlockCopy(arr, 0, farr, 0, arr.Length);
+                
+                // Apply input gain
+                for (var i = 0; i < farr.Length; i++)
+                    farr[i] *= this.recordGain;
+
+                this.outputBuffer.Write(farr);
             }
         }
         /// <summary>
@@ -601,22 +640,13 @@ namespace AudioStream
         /// <returns></returns>
         protected float[] GetAudioOutputBuffer(uint _len)
         {
-            lock (this.outputBufferLock)
+            lock (this.outputBuffer)
             {
-                // get bytes based on format used
-                int len = (int)_len * this.channelSize;
-
                 // adjust to what's available
-                len = Mathf.Min(len, this.outputBuffer.Available());
+                var len = Mathf.Min((int)_len, this.outputBuffer.Available());
 
-                // read available bytes
-                byte[] bArr = this.outputBuffer.Read(len);
-
-                // copy out bytes to float array
-                float[] oafrDataArr = new float[len / this.channelSize];
-                System.Buffer.BlockCopy(bArr, 0, oafrDataArr, 0, bArr.Length);
-
-                return oafrDataArr;
+                // read available
+                return this.outputBuffer.Read(len);
             }
         }
         #endregion

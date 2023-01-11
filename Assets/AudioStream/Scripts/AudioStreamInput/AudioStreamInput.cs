@@ -11,14 +11,6 @@ namespace AudioStream
     public class AudioStreamInput : AudioStreamInputBase
     {
         // ========================================================================================================================================
-        #region Init && FMOD structures
-        protected override IEnumerator Start()
-        {
-            yield return base.Start();
-        }
-        #endregion
-
-        // ========================================================================================================================================
         #region Recording
         /// <summary>
         /// Create new audio clip with FMOD callback for spatialization. Latency will suffer.
@@ -50,6 +42,8 @@ namespace AudioStream
 
         protected override void RecordingStopped()
         {
+            var asource = this.GetComponent<AudioSource>();
+            asource.Stop();
         }
         /// <summary>
         /// Satisfy AudioClip data requests
@@ -63,26 +57,21 @@ namespace AudioStream
 #endif
         void PCMReaderCallback(float[] data)
         {
-            if (this.isRecording && this.sound.hasHandle())
-            {
-                // always drain incoming buffer
-                var fArr = this.GetAudioOutputBuffer((uint)data.Length);
+            System.Array.Clear(data, 0, data.Length);
 
-                // if paused don't output it
-                if (this.isPaused)
-                    goto zero;
+            // always drain incoming buffer
+            var fArr = this.GetAudioOutputBuffer((uint)data.Length);
 
-                int length = fArr.Length;
-                for (int i = 0; i < length; ++i)
-                    data[i] = fArr[i] * this.gain;
-
+            // if paused don't output it
+            if (this.isPaused)
                 return;
-            }
 
-            zero:
-            {
-                System.Array.Clear(data, 0, data.Length);
-            }
+            var len = Mathf.Min(fArr.Length, data.Length);
+            for (var i = 0; i < len; ++i)
+                data[i] = fArr[i];
+
+            // TODO: Note - find out why System.Buffer.BlockCopy doesn't support block copy between same typed arrays
+            // System.Buffer.BlockCopy(fArr, 0, data, 0, fArr.Length);
         }
         #endregion
     }

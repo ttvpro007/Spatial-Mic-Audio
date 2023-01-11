@@ -32,7 +32,7 @@ public class MediaSourceOutputDeviceDemo : MonoBehaviour
     /// <summary>
     /// user sound/channel properties - independent from channel itself to be manipulable when channel is not playing
     /// </summary>
-    float channel1_volume = 1f, channel2_volume = 1f;
+    float channel1_volume = 0.4f, channel2_volume = 0.4f;
     bool channel1_loop = true, channel2_loop = true;
 
     #region UI events

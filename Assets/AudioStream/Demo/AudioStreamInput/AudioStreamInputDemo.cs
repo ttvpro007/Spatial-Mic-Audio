@@ -303,8 +303,8 @@ public class AudioStreamInputDemo : MonoBehaviour
 
             GUILayout.Label("Gain: ", AudioStreamSupport.UX.guiStyleLabelNormal);
 
-            this.audioStreamInput.gain = GUILayout.HorizontalSlider(this.audioStreamInput.gain, 0f, 5f);
-            GUILayout.Label(Mathf.Round(this.audioStreamInput.gain * 100f) + " %", AudioStreamSupport.UX.guiStyleLabelNormal);
+            this.audioStreamInput.recordGain = GUILayout.HorizontalSlider(this.audioStreamInput.recordGain, 0f, 5f);
+            GUILayout.Label(Mathf.Round(this.audioStreamInput.recordGain * 100f) + " %", AudioStreamSupport.UX.guiStyleLabelNormal);
 
             GUILayout.EndHorizontal();
 

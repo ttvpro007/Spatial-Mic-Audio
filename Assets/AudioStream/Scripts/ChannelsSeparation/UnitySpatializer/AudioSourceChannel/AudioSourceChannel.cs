@@ -16,14 +16,22 @@ namespace AudioStream
 
         void Awake()
         {
+            // initial AudioSource setup
             this.audioSource = this.GetComponent<AudioSource>();
+            if (this.audioSource.clip)
+            {
+                Debug.LogWarningFormat("Existing AudioClip {0} not used and will be destroyed", this.audioSource.clip.name);
+                Destroy(this.audioSource.clip);
+            }
+
+            this.audioSource.playOnAwake = false;
+            this.audioSource.loop = true;
         }
 
         public void Setup(int _channel, MultiChannelBuffer ofChannelBuffer, int withSampleRate, string audioClipName, float initialVolume, bool streamed)
         {
             this.channel = _channel;
             this.channelBuffer = ofChannelBuffer;
-            this.audioSource.loop = true;
             this.audioSource.volume = initialVolume;
 
             if (streamed)
@@ -53,7 +61,8 @@ namespace AudioStream
 
         public void Play()
         {
-            this.audioSource.Play();
+            if (this.audioSource)
+                this.audioSource.Play();
         }
 
         public void Stop()

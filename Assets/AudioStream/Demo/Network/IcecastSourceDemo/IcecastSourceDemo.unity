@@ -434,7 +434,7 @@ MonoBehaviour:
   recordDeviceId: 1
   logLevel: 2
   recordOnStart: 0
-  gain: 1
+  recordGain: 1
   latencyBlock: 0
   latencyTotal: 0
   latencyAverage: 0
