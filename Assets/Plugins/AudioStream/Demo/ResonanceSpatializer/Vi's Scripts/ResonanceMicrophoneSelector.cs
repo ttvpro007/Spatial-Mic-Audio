@@ -8,7 +8,7 @@ public class ResonanceMicrophoneSelector : MonoBehaviour
 
     [SerializeField]
     private string microphone;
-    [SerializeField, ReadOnly]
+    [SerializeField]
     private int id = 0;
 
 #if UNITY_EDITOR
